@@ -20,7 +20,12 @@ if __name__ == "__main__":
         print(e)
 
     for i in range(10):
-        email = f"user{i}@gmail.com"
-        producer.send(topic_name, email.encode())
+        msg = {
+            'id': "task_" + str(i),
+            'message': "Hello world",
+        }
+
+        producer.send(topic_name, json.dumps(msg).encode())
         sleep(0.1)
-        print(f"Published message to message broker. User email: {email}")
+        print(f"Published message to message broker.")
+        print(msg)

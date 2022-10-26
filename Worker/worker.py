@@ -13,10 +13,15 @@ count = {
 
 try:
     while True:
-        msg = c.poll(0.5)
-        if msg != {}:
-            #data = json.loads(msg.value())
-            print(msg)
+        #msg = c.poll(0.5)
+
+        for msg in c:
+            if msg != {}:
+                if msg is None:
+                    continue
+                else:
+                    data = json.loads(msg.value.decode())
+                    print(data)
 
 
 except KeyboardInterrupt:
