@@ -12,8 +12,8 @@ if __name__ == "__main__":
         topic = NewTopic(name=topic_name, num_partitions=1, replication_factor=1)
         admin = KafkaAdminClient(bootstrap_servers="localhost:9092")
         admin.create_topics([topic])
-    except Exception:
-        print(f"Topic {topic_name} is already created")
+    except Exception as e:
+        print("Error:", e, f"Topic {topic_name} is already created")
 
     for i in range(10):
         email = f"user{i}@gmail.com"
