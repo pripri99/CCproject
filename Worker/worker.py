@@ -3,7 +3,7 @@ import json
 from kafka import KafkaConsumer
 
 
-c = KafkaConsumer("user_signups")
+c = KafkaConsumer("task_Signup")
 
 last_timestamp = -1
 count = {
