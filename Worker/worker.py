@@ -17,18 +17,19 @@ count = {
 }
 
 
-def responseSignup(task_id, topic, message, data):
+def responseMessage(task_id, topic, message, data):
     msg_to_send = {
         'id': task_id,
         'message': message,
         'data': data
     }
     producer.send(topic, json.dumps(msg_to_send).encode())
-    print(f"Responded with message:")
+    print("TaskID [" + task_id + "] responded with message:")
     print(message)
 
 
 try:
+    print("Starting listening to signup...")
     while True:
         # msg = c.poll(0.5)
 
@@ -38,9 +39,11 @@ try:
                     continue
                 else:
                     data = json.loads(msg.value.decode())
+                    print("[+] RECEIVED MSG - Task REQUEST message for Task ID" + data["id"])
                     print(data)
-                    sleep(0.1)
-                    responseSignup(data["id"], RESPONSE_TOPIC, "Hello, this is my response.", data["data"])
+                    #TODO Sleep for testing
+                    sleep(1)
+                    responseMessage(data["id"], RESPONSE_TOPIC, "(WORKER) Bye World, this is my response.", data["data"])
 
 
 except KeyboardInterrupt:
