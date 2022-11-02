@@ -1,8 +1,10 @@
 import json
-
+from time import sleep
 from kafka import KafkaConsumer
+from kafka import KafkaProducer, KafkaAdminClient
+from kafka.admin import NewTopic
 
-
+producer = KafkaProducer(bootstrap_servers=["localhost:9092"])
 c = KafkaConsumer("task_Signup")
 
 last_timestamp = -1
@@ -11,9 +13,21 @@ count = {
     'long': 0
 }
 
+
+def responseSignup(task_id, topic, message, data):
+    msg_to_send = {
+        'id': task_id,
+        'message': message,
+        'data': data
+    }
+    producer.send(topic, json.dumps(msg_to_send).encode())
+    print(f"Responded to topic with message:")
+    print(message)
+
+
 try:
     while True:
-        #msg = c.poll(0.5)
+        # msg = c.poll(0.5)
 
         for msg in c:
             if msg != {}:
@@ -22,6 +36,9 @@ try:
                 else:
                     data = json.loads(msg.value.decode())
                     print(data)
+                    newtopic = data["message"]
+                    sleep(0.1)
+                    responseSignup(data["id"], newtopic, "New topic registered.", data["data"])
 
 
 except KeyboardInterrupt:
