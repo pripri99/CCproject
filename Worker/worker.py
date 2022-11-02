@@ -4,8 +4,11 @@ from kafka import KafkaConsumer
 from kafka import KafkaProducer, KafkaAdminClient
 from kafka.admin import NewTopic
 
+SIGNUP_TOPIC = "task_signup"
+RESPONSE_TOPIC = "task_response"
+
 producer = KafkaProducer(bootstrap_servers=["localhost:9092"])
-c = KafkaConsumer("task_Signup")
+signup_consumer = KafkaConsumer(SIGNUP_TOPIC)
 
 last_timestamp = -1
 count = {
@@ -21,7 +24,7 @@ def responseSignup(task_id, topic, message, data):
         'data': data
     }
     producer.send(topic, json.dumps(msg_to_send).encode())
-    print(f"Responded to topic with message:")
+    print(f"Responded with message:")
     print(message)
 
 
@@ -29,16 +32,15 @@ try:
     while True:
         # msg = c.poll(0.5)
 
-        for msg in c:
+        for msg in signup_consumer:
             if msg != {}:
                 if msg is None:
                     continue
                 else:
                     data = json.loads(msg.value.decode())
                     print(data)
-                    newtopic = data["message"]
                     sleep(0.1)
-                    responseSignup(data["id"], newtopic, "New topic registered.", data["data"])
+                    responseSignup(data["id"], RESPONSE_TOPIC, "Hello, this is my response.", data["data"])
 
 
 except KeyboardInterrupt:
@@ -47,4 +49,4 @@ except Exception as e:
     print("Exception reception ocurrend!")
     print(e)
 finally:
-    c.close()
+    signup_consumer.close()

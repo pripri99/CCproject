@@ -1,8 +1,16 @@
 import json
+from time import sleep
+import threading
 
 from kafka import KafkaProducer, KafkaAdminClient
 from kafka.admin import NewTopic
-from time import sleep
+from kafka import KafkaConsumer
+
+
+SIGNUP_TOPIC = "task_signup"
+RESPONSE_TOPIC = "task_response"
+
+response_consumer = KafkaConsumer(RESPONSE_TOPIC)
 
 def createTask(task_id, topic, message, data):
     msg_to_send = {
@@ -11,21 +19,19 @@ def createTask(task_id, topic, message, data):
         'data': data
     }
     producer.send(topic, json.dumps(msg_to_send).encode())
-    print(f"Published message to message broker.")
-    print(message)
-
-from kafka import KafkaConsumer
+    print(f"Published task to broker.")
+    print(task_id)
 
 
-def listenToMsg(taskTopicsToListen):
-    consumerList = []
-    for tsk in taskTopicsToListen:
-        print("Listening to topic: " + tsk)
-        consumerList.append(KafkaConsumer(tsk))
+
+def listenToMsg(taskIds):
+
+    #for tsk in taskIds:
+        #print("Requested Tasks: " + tsk)
+    print(" Starting listening to responses...")
     try:
         while True:
-            for c in consumerList:
-                for msg in c:
+                for msg in response_consumer:
                     if msg != {}:
                         if msg is None:
                             continue
@@ -33,22 +39,20 @@ def listenToMsg(taskTopicsToListen):
                             data = json.loads(msg.value.decode())
                             print(data)
 
-
     except KeyboardInterrupt:
         pass
     except Exception as e:
         print("Exception reception ocurrend!")
         print(e)
     finally:
-        c.close()
+        response_consumer.close()
 
 if __name__ == "__main__":
 
-    SIGNUP_TOPIC = "task_Signup"
     producer = KafkaProducer(bootstrap_servers=["localhost:9092"])
 
     try:
-        #Create Kafka topic
+        # Create Kafka topic
         topic = NewTopic(name=SIGNUP_TOPIC, num_partitions=1, replication_factor=1)
         admin = KafkaAdminClient(bootstrap_servers="localhost:9092")
         admin.create_topics([topic])
@@ -57,16 +61,20 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
 
-    taskTopicsToListen = []
+    taskIds = []
 
     for i in range(10):
         id = "task_" + str(i)
-        message = "wt_" + id
+        message = "Process this please"
         createTask(id, SIGNUP_TOPIC, message,
                    ["This", "is", "any", "kind", "of", "data"])
-        taskTopicsToListen.append(message)
+        taskIds.append(id)
         sleep(0.1)
 
     #sleep(5)
-    listenToMsg(taskTopicsToListen)
+    x = threading.Thread(target=listenToMsg, args=(taskIds,))
+    x.start()
+    print("Main    : wait for the thread to finish")
+    x.join()
+    print("Main    : all done")
 
