@@ -4,7 +4,7 @@ from kafka import KafkaProducer, KafkaAdminClient
 from kafka.admin import NewTopic
 from time import sleep
 
-def createTask():
+
 
 
 
