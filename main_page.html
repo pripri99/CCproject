@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Test Message App</title>
+    <!-- <link rel="stylesheet" href="" /> -->
+
+    
+  </head>
+
+  <body>
+    <h2>Message sent</h2>
+    <p id="msg-received"></p>
+    <h2>Message Received</h2>
+    <p id="msg-received"></p>
+
+    <script>
+        let ws = new WebSocket("ws://0.0.0.0:8000/ws");
+        let stock_quotes_chart;
+        let recommendation_chart;
+
+        window.addEventListener('load', function () {
+
+            ws.onmessage = function(event) {
+                let data = JSON.parse(event.data)
+                console.log('Message from server ', data);
+                document.getElementById("msg-received").innerHTML = 5 + 6;
+                /*if (data["message"] === "connected") {
+                    return
+                }
+
+                if (data['recommendation']) {
+                    recommendation_chart.series[0].addPoint(data['recommendation'], true, false);
+                } else {
+                    let stock_quotes_point = [
+                        data['date_milliseconds'],
+                        data['open_price'],
+                        data['high_price'],
+                        data['low_price'],
+                        data['close_price'],
+                    ]
+                    stock_quotes_chart.series[0].addPoint(stock_quotes_point, true, false);
+                }*/
+            };
+        });
+    </script>
+  </body>
+</html>
